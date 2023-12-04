@@ -1,0 +1,49 @@
+
+OpportunityTrigger:
+-----------------------
+Trigger OpportunityTrigger on Opportunity(Before Insert){
+if(Trigger.isBefore && Trigger.isInsert){
+OpportunityTriggerHandler.updateOpportunity(Trigger.new);
+}
+}
+
+
+OpportunityTriggerHandler:
+-------------------------------
+public class OpportunityTriggerHandler{
+public static void updateOpportunity(List<Opportunity> oppList)
+{
+forOpportunity opp: oppList)
+{
+if(opp.Amount!=null && opp.Amount>=100000 && opp.Amount<=500000){
+opp.Description='Hot Opportunity';
+}
+}
+}
+}
+
+OpportunityTriggerHandlerTest:
+------------------------------------
+
+@isTest
+public class OpportunityTriggerHandlerTest{
+@isTest
+public static void updateDescriptionTest(){
+List<Opportunity> oppList=new List<Opportunity>();
+for(Integer i=0;i<=5;i++){
+Opportunity opp = new Opportunity ();
+opp.Name= 'OppTest'+i;
+opp.StageName='Prospecting';
+opp.CloseDate=system.today();
+opp.Amount =200000;
+
+oppList.add(opp);
+}
+test.startTest();
+insert oppList;
+test.stopTest();
+
+List<Opportunity> updateOppList = [Select id,Name,Description from Opportunity Where Id =: oppList[0].id];
+System.assertEquals('Hot Opportunity', updateOppList [0].Description);
+}
+}
