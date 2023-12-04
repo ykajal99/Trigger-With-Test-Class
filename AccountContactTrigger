@@ -1,0 +1,47 @@
+1.write a trigger on whenever a record is inserted into the account automatically inserted into the contact
+AccountContactTrigger:
+-----------------------------
+trigger AccountContactTrigger on Account (after insert) {
+if(Trigger.isInsert && Trigger.isAfter){
+AccountContactTriggerHandler.createContactOnAccount(Trigger.new);
+}
+}
+
+AccountContactTriggerHandler:
+----------------------------------------
+public Class AccountContactTriggerHandler{
+public static void createContactOnAccount(List<Account> accList){
+  List<Contact> contactsToInsert = new List<Contact>();
+for (Account acc : accList){
+        Contact con = new Contact();
+        con.FirstName = 'Test FName';
+        con.LastName = 'Test LName' + acc.Name;
+        con.AccountId = acc.Id;
+        contactsToInsert.add(con);
+    }   
+    if (!contactsToInsert.isEmpty()) {
+        insert contactsToInsert;
+    }
+}
+
+
+AccountContactTriggerTest:
+--------------------------------
+@isTest
+public Class AccountContactTriggerTest{
+@isTest 
+public static void createContactTest(){
+List<Account> accList=new List<Account>();
+for(Integer i=0;i<=5;i++){
+Account acc = new Account ();
+acc.Name= 'Test'+i;
+acc.Industry='Energy';
+accList.add(acc);
+}
+test.startTest();
+insert accList;
+test.stopTest();
+}
+List<Contact> contactsToInsert =[Select Id,FirstName,LastName from Contact Where AccountId=: accList[0].id];
+System.assertEquals(contactsToInsert !=null, 'Contact is not created');
+}
