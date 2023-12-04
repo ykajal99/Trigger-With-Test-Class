@@ -1,0 +1,45 @@
+/* Upon account record creation if Industry field is having value as 'Media' or Energy then populate Rating as 'Hot'*/
+
+AccountTrigger:
+----------------------
+Trigger AccountTrigger on Account (Before Insert){
+if(Trigger.isBefore && Trigger.isInsert){
+AccountTriggerHandler.updateAccount(Trigger.new);
+}
+}
+
+AccountTriggerHandler:
+----------------------------
+public class AccountTriggerHandler{
+public static void updateAccount(List<Account> accList)
+{
+for(Account acc: accList)
+{
+if(acc.Industry=='Media' && acc.Industry=='Media'){
+acc.Rating='Hot';
+}
+}
+}
+}
+
+AccountTriggerHandlerTest:
+-----------------------------------
+@isTest
+public class AccountTriggerHandlerTest{
+@isTest
+public static void updateRatingTest(){
+List<Account> accList=new List<Account>();
+for(Integer i=0;i<=5;i++){
+Account acc = new Account ();
+acc.Name= 'Test'+i;
+acc.Industry='Energy';
+accList.add(acc);
+}
+test.startTest();
+insert accList;
+test.stopTest();
+
+List<Account> updateAccList = [Select id,Name,Rating,Industry from Account  Where Id =: accList[0].id];
+System.assertEquals('Hot', updateAccList [0].Rating);
+}
+}
