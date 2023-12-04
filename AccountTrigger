@@ -43,3 +43,52 @@ List<Account> updateAccList = [Select id,Name,Rating,Industry from Account  Wher
 System.assertEquals('Hot', updateAccList [0].Rating);
 }
 }
+
+
+/*When an Account record is created and CopyBillingToShipping is checked then copy Account Billing Address to Shipping Address*/
+
+AccountTriggerHandler:
+----------------------------
+public class AccountTriggerHandler{
+public static void updateAccountBillingToShipping(List<Account> accList)
+{
+for(Account acc: accList)
+{
+if(acc.CopyBillingToShipping__c){
+acc.ShippingStreet=acc.BillingStreet;
+acc.ShippingCity=acc.BillingCity;
+acc.ShippingState=acc.BillingState;
+acc.ShippingCountry=acc.BillingCountry;
+acc.ShippingPostalCode=acc.BillingPostalCode;
+}
+}
+}
+}
+
+AccountTriggerHandlerTest:
+-----------------------------------
+@isTest
+public class AccountTriggerHandlerTest{
+@isTest
+public static void updateBillingToShippingTest(){
+List<Account> accList=new List<Account>();
+for(Integer i=0;i<=5;i++){
+Account acc = new Account ();
+acc.Name= 'Test'+i;
+acc.BillingStreet='TestStreet';
+acc.BillingCity='TestCity';
+acc.BillingState='TestState';
+acc.BillingCountry='TestCountry';
+acc.BillingStreet='1234';
+acc.CopyBillingToShipping__c=true;
+
+accList.add(acc);
+}
+test.startTest();
+insert accList;
+test.stopTest();
+
+List<Account> updateAccList = [Select id,Name,ShipingCity from Account  Where Id =: accList[0].id];
+System.assertEquals('TestCity', updateAccList [0].ShipingCity);
+}
+}
